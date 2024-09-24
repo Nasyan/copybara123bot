@@ -1,17 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram Clicker</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Кликер</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div id="app">
-        <h1>Clicker Game</h1>
-        <div id="score">Score: 0</div>
-        <button id="clickButton">Click me!</button>
-    </div>
-    <script src="script.js"></script>
+    <h1>Кликер</h1>
+    <p>Оставшиеся клики: <span id="clicks">10</span></p>
+    <button id="clickButton">Клик</button>
+    <button id="buyClicksButton">Купить клики</button>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        let remainingClicks = 10;
+
+        document.getElementById('clickButton').addEventListener('click', () => {
+            if (remainingClicks > 0) {
+                remainingClicks--;
+                document.getElementById('clicks').innerText = remainingClicks;
+                // Отправляем информацию на сервер
+                fetch('/click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: tg.initDataUnsafe.user.id }) });
+            } else {
+                alert('Клики закончились. Купите еще.');
+            }
+        });
+
+        document.getElementById('buyClicksButton').addEventListener('click', () => {
+            tg.openInvoice({
+                title: 'Подтвердите покупку',
+                description: 'Купить 10 кликов',
+                payload: 'clicks',
+                currency: 'XTR',
+                prices: [{ label: 'XTR', amount: 1 }]
+            });
+        });
+    </script>
 </body>
 </html>
